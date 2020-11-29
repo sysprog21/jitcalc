@@ -2,3 +2,6 @@ LuaJIT
 jitcalc
 jitcalc.c
 minilua
+*.o
+*.o.d
+*.dSYM

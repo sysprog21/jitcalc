@@ -1,10 +1,18 @@
 CC ?= gcc
 CFLAGS = -Wall -O2 -g -fno-pie -no-pie
 
-jitcalc: jitcalc.c
-	$(CC) $(CFLAGS) -o jitcalc jitcalc.c
+BIN = jitcalc
+OBJS = jitcalc.o
 
-all: jitcalc
+deps := $(OBJS:%.o=%.o.d)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $< -MMD -MF $@.d
+
+jitcalc: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $<
+
+all: $(BIN)
 
 LuaJIT/src/host/minilua.c:
 	git clone https://github.com/LuaJIT/LuaJIT
@@ -28,6 +36,10 @@ check: all
 
 .PHONY: clean
 clean:
-	rm -f jitcalc.c jitcalc
+	$(RM) jitcalc.c jitcalc
+	$(RM) $(OBJS) $(deps)
+
 distclean: clean
 	rm -rf LuaJIT minilua
+
+-include $(deps)
