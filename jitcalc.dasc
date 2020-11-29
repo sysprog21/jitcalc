@@ -54,7 +54,8 @@
 |.endmacro
 
 /* Dst must be pointed to the dasm_State *.
- * We could make it global stats or use this macro to point to it as well. */
+ * We could make it global stats or use this macro to point to it as well.
+ */
 #define Dst (&(comp->dstate))
 
 /* Tokenizer */
@@ -137,7 +138,7 @@ lexer:
             tk->len = 2;
             return (tk->tk = TK_EQ);
         }
-        fprintf(stderr, "unknown token:\"=\". Do you mean \"==\"");
+        fprintf(stderr, "unknown token: \"=\". Do you mean \"==\"");
         return -1;
     case '!':
         if (tk->src[tk->pos + 1] == '=') {
@@ -160,14 +161,14 @@ lexer:
             tk->len = 2;
             return (tk->tk = TK_AND);
         }
-        fprintf(stderr, "unknown token:\"&\". Do you mean \"&&\"");
+        fprintf(stderr, "unknown token: \"&\". Do you mean \"&&\"");
         return -1;
     case '|':
         if (tk->src[tk->pos + 1] == '|') {
             tk->len = 2;
             return (tk->tk = TK_OR);
         }
-        fprintf(stderr, "unknown token:\"|\". Do you mean \"||\"");
+        fprintf(stderr, "unknown token: \"|\". Do you mean \"||\"");
         return -1;
     case '?':
         tk->len = 1;
@@ -189,7 +190,7 @@ lexer:
         errno = 0;
         tk->val.num = strtol(tk->src + tk->pos, &end, 10);
         if (errno) {
-            fprintf(stderr, "cannot parse number:%s!", strerror(errno));
+            fprintf(stderr, "cannot parse number: %s!", strerror(errno));
             return -1;
         }
         tk->len = end - (tk->src + tk->pos);
@@ -211,7 +212,7 @@ lexer:
             tk->len = j - tk->pos;
             return (tk->tk = TK_VARIABLE);
         }
-        fprintf(stderr, "unexpected token character:%c", tk->src[tk->pos]);
+        fprintf(stderr, "unexpected token character: %c", tk->src[tk->pos]);
         return -1;
     }
 }
