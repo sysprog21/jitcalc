@@ -15,6 +15,11 @@ be much faster than pure interpreters.
 4. function call;
 5. tenary operation;
 
+## Build
+
+Simply run `make` and you should have the executable file `jitcalc`.
+Run `make check` for some expressions.
+
 ## License
 
 `jitcalc` is licensed under the MIT License.

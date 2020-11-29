@@ -23,6 +23,8 @@ check: all
 	./jitcalc "5 > 3 ? 1 : 0"
 	./jitcalc "99 != 100 ? 1 : 0"
 	./jitcalc "abs(-1)"
+	./jitcalc "mul(-1, -1) ? +1 : -1"
+	./jitcalc "max(-100, +100)"
 
 .PHONY: clean
 clean:
