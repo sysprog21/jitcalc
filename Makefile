@@ -1,5 +1,5 @@
 CC ?= gcc
-CFLAGS = -Wall -O2 -g -fno-pie -no-pie
+CFLAGS = -Wall -O2 -std=gnu99 -g -fno-pie -no-pie
 
 BIN = jitcalc
 OBJS = jitcalc.o

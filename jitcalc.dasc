@@ -325,11 +325,10 @@ int expr(struct compiler *comp, int REG);
 /* function call */
 int func_call(struct compiler *comp, int REG, const char *fn)
 {
-    void *addr;  /* function address */
     int cnt = 0; /* function argument count */
     assert(comp->tk.tk == TK_LPAR);
 
-    addr = func_lookup(fn);
+    void *addr = func_lookup(fn); /* function address */
     if (!addr) {
         fprintf(stderr, "no such function:%s!", fn);
         return -1;
@@ -337,7 +336,7 @@ int func_call(struct compiler *comp, int REG, const char *fn)
 
     tk_move(&(comp->tk));
     while (comp->tk.tk != TK_RPAR) {
-        /* until now we haven't use EAX/RAX */
+        /* until now we have not used EAX/RAX */
         if (expr(comp, REG_EAX))
             return -1;
 
@@ -377,13 +376,13 @@ int func_call(struct compiler *comp, int REG, const char *fn)
         tk_move(&(comp->tk));
     }
 
-    /* Expect a ")" */
+    /* Expect one ")" */
     if (comp->tk.tk != TK_RPAR) {
         fprintf(stderr, "The function is not properly closed!");
         return -1;
     }
 
-    /* Emit call crap */
+    /* Emit call */
     | callp addr
 
     /* Now move result accordingly */
@@ -454,7 +453,6 @@ int unary(struct compiler *comp, int REG)
      */
     int op[32];
     int sz = 0;
-    int i;
 
     do {
         if (comp->tk.tk == TK_NOT || comp->tk.tk == TK_SUB ||
@@ -476,7 +474,7 @@ int unary(struct compiler *comp, int REG)
         return -1;
 
     /* now we know EAX must contain our baby */
-    for (i = 0; i < sz; ++i) {
+    for (int i = 0; i < sz; ++i) {
         switch (op[i]) {
         case TK_SUB:
             | neg eax
@@ -762,16 +760,16 @@ void *jitcode(dasm_State **state)
 
 void *compile(const char *src)
 {
-    struct compiler comp;
-    memset(&comp, 0, sizeof(comp));
-    dasm_State *state = comp.dstate;
-    comp.tag = comp.tag_cap = 0;
-
     /* initialize dynasm dstate */
+    dasm_State *state = NULL;
     dasm_init(&state, 1);
     dasm_setup(&state, actions);
 
-    comp.dstate = state;
+    struct compiler comp = {
+        .dstate = state,
+        .tag = 0,
+        .tag_cap = 0,
+    };
 
     /* Hack */
 #undef Dst
