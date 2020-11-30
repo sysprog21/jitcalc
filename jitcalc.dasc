@@ -1,6 +1,7 @@
 #include "LuaJIT/dynasm/dasm_proto.h"
 #include "LuaJIT/dynasm/dasm_x86.h"
 
+#include <stdint.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
