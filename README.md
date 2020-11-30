@@ -13,7 +13,7 @@ be much faster than pure interpreters.
 2. add, substrate, multiply and divide;
 3. logic and comparison;
 4. function call;
-5. tenary operation;
+5. ternary operation;
 
 ## Build
 
