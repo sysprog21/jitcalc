@@ -321,10 +321,10 @@ enum {
     REG_EBX  /* callee save */
 };
 
-int expr(struct compiler *comp, int REG);
+int expr(struct compiler *comp, int reg);
 
 /* function call */
-int func_call(struct compiler *comp, int REG, const char *fn)
+int func_call(struct compiler *comp, int reg, const char *fn)
 {
     int cnt = 0; /* function argument count */
     assert(comp->tk.tk == TK_LPAR);
@@ -387,7 +387,7 @@ int func_call(struct compiler *comp, int REG, const char *fn)
     | callp addr
 
     /* Now move result accordingly */
-    if (REG == REG_EBX) {
+    if (reg == REG_EBX) {
         | mov ebx, eax
     }
 
@@ -396,13 +396,13 @@ int func_call(struct compiler *comp, int REG, const char *fn)
 }
 
 /* number value is always returned in EAX register */
-int atomic(struct compiler *comp, int REG)
+int atomic(struct compiler *comp, int reg)
 {
     /* lex next token from the input */
     switch (comp->tk.tk) {
     case TK_LPAR:
         tk_move(&(comp->tk));
-        if (expr(comp, REG))
+        if (expr(comp, reg))
             return -1;
         if (comp->tk.tk != TK_RPAR) {
             fprintf(stderr, "The sub-expression is not properly closed!");
@@ -419,19 +419,19 @@ int atomic(struct compiler *comp, int REG)
         tk_move(&(comp->tk));
         if (comp->tk.tk == TK_LPAR) {
             /* it is a function call */
-            return func_call(comp, REG, var);
+            return func_call(comp, reg, var);
         }
         /* generate call stub */
         | mov rdi, var
         | callp &lookup
-        if (REG == REG_EBX) {
+        if (reg== REG_EBX) {
             | mov ebx, eax
         }
         break;
     }
     case TK_NUMBER: {
         int num = comp->tk.val.num;
-        if (REG == REG_EAX) {
+        if (reg == REG_EAX) {
             | mov eax, dword num
         } else {
             | mov ebx, dword num
@@ -446,7 +446,7 @@ int atomic(struct compiler *comp, int REG)
 }
 
 /* unary */
-int unary(struct compiler *comp, int REG)
+int unary(struct compiler *comp, int reg)
 {
     /* generate code for unary is kind of tricky since the generation order
      * is not the order of how code is written. Here we need to save all the
@@ -491,14 +491,14 @@ int unary(struct compiler *comp, int REG)
             assert(0);
         }
     }
-    if (REG == REG_EBX) {
+    if (reg == REG_EBX) {
         | mov ebx, eax
     }
     return 0;
 }
 
 /* factor */
-int factor(struct compiler *comp, int REG)
+int factor(struct compiler *comp, int reg)
 {
     if (unary(comp, REG_EAX))
         return -1;
@@ -507,7 +507,7 @@ int factor(struct compiler *comp, int REG)
     do {
         int op;
         if (comp->tk.tk != TK_MUL && comp->tk.tk != TK_DIV) {
-            if (REG == REG_EBX) {
+            if (reg == REG_EBX) {
                 | mov ebx, eax
             }
             break;
@@ -532,7 +532,7 @@ int factor(struct compiler *comp, int REG)
 }
 
 /* term */
-int term(struct compiler *comp, int REG)
+int term(struct compiler *comp, int reg)
 {
     if (factor(comp, REG_EAX))
         return -1;
@@ -540,7 +540,7 @@ int term(struct compiler *comp, int REG)
     do {
         int op;
         if (comp->tk.tk != TK_ADD && comp->tk.tk != TK_SUB) {
-            if (REG == REG_EBX) {
+            if (reg == REG_EBX) {
                 | mov ebx, eax
             }
             break;
@@ -564,7 +564,7 @@ int term(struct compiler *comp, int REG)
 }
 
 /* Comparison */
-int comparison(struct compiler *comp, int REG)
+int comparison(struct compiler *comp, int reg)
 {
     /* generate comparison is simple. Just need to use CMP/TEST instructions.
      * Since we do not intend to optimize, here we just use CMP.
@@ -576,7 +576,7 @@ int comparison(struct compiler *comp, int REG)
         if (comp->tk.tk != TK_LT && comp->tk.tk != TK_LE &&
                 comp->tk.tk != TK_GT && comp->tk.tk != TK_GE &&
                 comp->tk.tk != TK_NE && comp->tk.tk != TK_EQ) {
-            if (REG == REG_EBX) {
+            if (reg== REG_EBX) {
                 | mov ebx, eax
             }
             break;
@@ -628,7 +628,7 @@ int comparison(struct compiler *comp, int REG)
     return 0;
 }
 
-int logic(struct compiler *comp, int REG)
+int logic(struct compiler *comp, int reg)
 {
     if (comparison(comp, REG_EBX))
         return -1;
@@ -669,7 +669,7 @@ int logic(struct compiler *comp, int REG)
         | cmp eax, 0
         | setne al
 
-        if (REG == REG_EBX) {
+        if (reg== REG_EBX) {
             | movzx ebx, al
         }
         else {
@@ -679,14 +679,14 @@ int logic(struct compiler *comp, int REG)
         /* we do not have a actual logic combinator, so no need to normalize
          * the value.
          */
-        if (REG == REG_EAX) {
+        if (reg == REG_EAX) {
             | mov eax, ebx
         }
     }
     return 0;
 }
 
-int expr(struct compiler *comp, int REG)
+int expr(struct compiler *comp, int reg)
 {
     if (logic(comp, REG_EAX))
         return -1;
@@ -726,7 +726,7 @@ int expr(struct compiler *comp, int REG)
         |=> exit:
     }
 
-    if (REG == REG_EBX) {
+    if (reg == REG_EBX) {
         | mov ebx, eax
     }
     return 0;
